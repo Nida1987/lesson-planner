@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>حضّرلي — مساعد تحضير الدروس الفوري</title>
+  
+  <template id="__bundler_thumbnail" data-bg-color="#F3F8F6">
+    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1200" height="800" fill="#F3F8F6"/>
+      <rect x="450" y="250" width="300" height="300" rx="50" fill="#2D9E8A"/>
+      <text x="600" y="440" font-family="system-ui" font-size="140" font-weight="900" fill="white" text-anchor="middle">📚</text>
+    </svg>
+  </template>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#F3F8F6; --surface:#fff; --teal:#2D9E8A; --teal-l:#E2F3EF; --teal-m:#B8E4DC;
+      --blue:#4A7FA5; --blue-l:#EBF3FA; --sage:#7BA68A;
+      --amber:#E8A53A; --amber-l:#FEF4E3;
+      --violet:#7B6FA5; --violet-l:#F0EEF8;
+      --rose:#C05C72; --rose-l:#FAEAED;
+      --text:#1A2E28; --text2:#567169; --text3:#93ACA3;
+      --border:#D3E7E1; --shadow:rgba(45,158,138,.1);
+    }
+    html,body{height:100%;font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text)}
+    body{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 16px 40px}
+    #root{width:100%;max-width:680px}
+
+    .card{background:var(--surface);border-radius:28px;box-shadow:0 4px 32px var(--shadow),0 1px 4px rgba(0,0,0,.04);padding:40px 36px;width:100%;animation:slideUp .38s cubic-bezier(.22,.8,.25,1) both}
+    @keyframes slideUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+    .btn-p{display:block;width:100%;background:var(--teal);color:#fff;border:none;border-radius:16px;font-family:'Cairo',sans-serif;font-size:17px;font-weight:700;padding:17px 24px;cursor:pointer;transition:background .2s,transform .15s,box-shadow .2s;box-shadow:0 4px 16px rgba(45,158,138,.28)}
+    .btn-p:hover{background:#24896e;transform:translateY(-1px);box-shadow:0 6px 20px rgba(45,158,138,.34)}
+    .btn-p:active{transform:translateY(0)}
+    .btn-p:disabled{background:var(--teal-m);box-shadow:none;cursor:default;transform:none}
+    .btn-s{display:inline-flex;align-items:center;gap:6px;background:transparent;color:var(--teal);border:2px solid var(--teal-m);border-radius:12px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:600;padding:9px 16px;cursor:pointer;transition:background .2s,border-color .2s}
+    .btn-s:hover{background:var(--teal-l);border-color:var(--teal)}
+    .btn-ghost{background:transparent;border:none;color:var(--text2);font-family:'Cairo',sans-serif;font-size:14px;font-weight:500;cursor:pointer;padding:8px 4px;transition:color .2s}
+    .btn-ghost:hover{color:var(--teal)}
+
+    .progress-bar{display:flex;gap:6px;margin-bottom:32px}
+    .progress-dot{flex:1;height:5px;border-radius:99px;background:var(--border);transition:background .35s}
+    .progress-dot.active{background:var(--teal)}
+    .progress-dot.done{background:var(--teal-m)}
+
+    .lbl-tag{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--teal);text-transform:uppercase;margin-bottom:6px}
+    .lbl-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px;line-height:1.35}
+    .lbl-sub{font-size:14px;color:var(--text2);margin-bottom:28px;line-height:1.6}
+
+    .opts{display:flex;flex-direction:column;gap:9px;margin-bottom:28px}
+    .opt{display:flex;align-items:center;gap:13px;padding:13px 16px;border:2px solid var(--border);border-radius:13px;cursor:pointer;transition:border-color .2s,background .2s,transform .12s;background:#fff}
+    .opt:hover{border-color:var(--teal-m);background:var(--teal-l);transform:translateX(-2px)}
+    .opt.sel{border-color:var(--teal);background:var(--teal-l)}
+    .opt-radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s}
+    .opt.sel .opt-radio{border-color:var(--teal);background:var(--teal)}
+    .opt.sel .opt-radio::after{content:'';display:block;width:7px;height:7px;border-radius:50%;background:#fff}
+    .opt-lbl{font-size:14px;font-weight:500;color:var(--text)}
+
+    .fg{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+    .fg-row{display:grid;gap:12px;margin-bottom:16px}
+    .fg-row.col2{grid-template-columns:1fr 1fr}
+    .fg-row.col3{grid-template-columns:1fr 1fr 1fr}
+    .fl{font-size:13px;font-weight:700;color:var(--text2)}
+    .fi,.fs{padding:13px 16px;border:2px solid var(--border);border-radius:13px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:500;color:var(--text);background:#fff;transition:border-color .2s,box-shadow .2s;outline:none;width:100%}
+    .fi:focus,.fs:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(45,158,138,.09)}
+    .fi[dir="ltr"],.fs[dir="ltr"]{text-align:left;direction:ltr}
+    .fs{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%232D9E8A' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 14px center}
+
+    .lang-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+    .lang-tab{padding:7px 16px;border-radius:99px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:2px solid var(--border);background:#fff;color:var(--text2);transition:all .2s}
+    .lang-tab.active{background:var(--teal);border-color:var(--teal);color:#fff}
+
+    .div{height:1px;background:var(--border);margin:22px 0}
+
+    .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+    .q-cnt{font-size:13px;color:var(--text3);font-weight:600}
+
+    .plan-meta-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+    .meta-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--teal-l);border-radius:99px;font-size:12px;font-weight:600;color:var(--teal)}
+
+    .plan-table{width:100%;border-collapse:collapse;margin-bottom:28px}
+    .plan-table th,.plan-table td{padding:12px 14px;border:1.5px solid var(--border);vertical-align:top;font-size:14px;line-height:1.6}
+    .plan-table th{background:var(--teal-l);color:var(--teal);font-weight:800;font-size:13px;white-space:nowrap;width:160px}
+    .plan-table td{color:var(--text)}
+    .plan-table ul{padding-right:18px;display:flex;flex-direction:column;gap:4px}
+    .plan-table ul li{margin:0}
+
+    .act-row{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+    .act-time{background:var(--blue-l);color:var(--blue);font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+    .act-desc{font-size:14px;color:var(--text);line-height:1.5}
+
+    .criteria-pct{display:inline-flex;align-items:center;gap:6px;background:var(--teal-l);border-radius:10px;padding:8px 14px;font-size:15px;font-weight:800;color:var(--teal);margin-top:6px}
+
+    .ai-section-title{font-size:17px;font-weight:800;color:var(--text);margin-bottom:4px}
+    .ai-section-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
+    .ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
+    .ai-card{border-radius:18px;overflow:hidden;cursor:pointer;border:2px solid var(--border);background:#fff;transition:transform .2s,box-shadow .2s,border-color .2s;position:relative}
+    .ai-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px var(--shadow);border-color:var(--teal)}
+    .ai-card-thumb{height:110px;display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;overflow:hidden}
+    .ai-card-body{padding:11px 14px 14px}
+    .ai-card-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px}
+    .ai-card-sub{font-size:11px;color:var(--text3)}
+    .ai-badge{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.9);border-radius:99px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--teal)}
+
+    .overlay{position:fixed;inset:0;background:rgba(10,20,18,.6);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;animation:fadeIn .25s}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .overlay-card{background:#fff;border-radius:24px;width:100%;max-width:720px;padding:32px;position:relative;margin:auto;animation:slideUp .3s cubic-bezier(.22,.8,.25,1)}
+    .overlay-close{position:absolute;top:16px;left:16px;background:var(--border);border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:background .2s}
+    .overlay-close:hover{background:var(--teal-l);color:var(--teal)}
+
+    .loading-wrap{display:flex;flex-direction:column;align-items:center;padding:48px 0}
+    .dots{display:flex;gap:10px;margin-bottom:18px}
+    .dots span{width:11px;height:11px;border-radius:50%;background:var(--teal);animation:bounce 1.2s infinite ease-in-out}
+    .dots span:nth-child(2){animation-delay:.15s;background:var(--blue)}
+    .dots span:nth-child(3){animation-delay:.3s;background:var(--sage)}
+    @keyframes bounce{0%,80%,100%{transform:scale(.7);opacity:.5}40%{transform:scale(1);opacity:1}}
+
+    .prompt-box{background:var(--bg);border-radius:14px;padding:16px;font-size:14px;line-height:1.7;color:var(--text);white-space:pre-wrap;direction:auto;margin-bottom:16px}
+    .ext-links{display:flex;gap:10px;flex-wrap:wrap}
+    .ext-link{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:var(--teal);color:#fff;border-radius:12px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;text-decoration:none;transition:background .2s;border:none;cursor:pointer}
+    .ext-link:hover{background:#24896e}
+    .ext-link.alt{background:transparent;color:var(--blue);border:2px solid var(--blue-l)}
+    .ext-link.alt:hover{background:var(--blue-l)}
+
+    .slide-mini{background:linear-gradient(135deg,var(--teal),var(--blue));border-radius:12px;padding:20px;margin-bottom:10px;color:#fff}
+    .slide-mini-title{font-size:15px;font-weight:800;margin-bottom:6px}
+
+    .action-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+
+    .w-icon{width:76px;height:76px;background:var(--teal-l);border-radius:22px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:34px}
+    .w-title{font-size:34px;font-weight:900;text-align:center;margin-bottom:10px;line-height:1.25}
+    .w-sub{font-size:16px;color:var(--text2);text-align:center;line-height:1.7;margin-bottom:32px}
+    .w-sub strong{color:var(--teal);font-weight:700}
+    .step-item{display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:12px;padding:11px 14px;margin-bottom:10px}
+    .step-num{width:28px;height:28px;border-radius:50%;background:var(--teal);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .step-txt{font-size:14px;color:var(--text2);font-weight:500}
+
+    @media(max-width:520px){.ai-grid{grid-template-columns:1fr}.fg-row.col2,.fg-row.col3{grid-template-columns:1fr}.card{padding:28px 20px}}
+    @media print{body{background:#fff;padding:0}.card{box-shadow:none;border-radius:0;padding:20px}.btn-p,.btn-s,.btn-ghost,.action-row,.ai-section-title,.ai-section-sub,.ai-grid{display:none!important}}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const STYLE_QS = [
+  { id:'grouping', text:'هل تُفضّل الأنشطة الجماعية أم الفردية؟',
+    opts:[{v:'group',l:'جماعية — العمل في مجموعات'},{v:'individual',l:'فردية — كل طالب بمفرده'},{v:'mixed',l:'مزيج من الاثنين'}]},
+  { id:'approach', text:'هل تركّز على الجانب النظري أم التطبيقي؟',
+    opts:[{v:'theory',l:'نظري — الشرح والمفاهيم'},{v:'practical',l:'تطبيقي — التدريبات والأمثلة'},{v:'balanced',l:'توازن بين النظري والتطبيقي'}]},
+  { id:'interaction', text:'كيف تُفضّل التفاعل مع طلابك؟',
+    opts:[{v:'questions',l:'طرح أسئلة ومناقشة'},{v:'lecture',l:'شرح مباشر من المعلم'},{v:'discovery',l:'الاستكشاف الذاتي للطلاب'}]},
+  { id:'assessment', text:'كيف تُقيّم فهم طلابك عادةً؟',
+    opts:[{v:'quiz',l:'اختبار قصير في نهاية الحصة'},{v:'observation',l:'الملاحظة أثناء الأنشطة'},{v:'homework',l:'واجب منزلي'}]},
+  { id:'tools', text:'ما نوع الوسائل التي تستخدمها في التدريس؟',
+    opts:[{v:'board',l:'السبورة والكتاب المدرسي'},{v:'digital',l:'العروض التقديمية والوسائل الرقمية'},{v:'handson',l:'أدوات ومواد ملموسة'}]},
+  { id:'lesson_type', text:'ما نوع الدرس الذي ستقدّمه؟',
+    opts:[{v:'new',l:'درس جديد — تقديم مفهوم لأول مرة'},{v:'review',l:'مراجعة — تعزيز وتكرار'},{v:'application',l:'تطبيقي — حل مسائل وتمارين'},{v:'assessment',l:'تقييمي — اختبار أو مشروع'}]},
+  { id:'difficulty', text:'ما مستوى صعوبة الدرس المتوقع على الطلاب؟',
+    opts:[{v:'easy',l:'سهل — مفاهيم مألوفة وبسيطة'},{v:'medium',l:'متوسط — يحتاج شرحاً وتدريباً'},{v:'hard',l:'صعب — مفاهيم معقدة تحتاج تركيزاً'}]},
+];
+
+const GRADES = ['الصف الأول','الصف الثاني','الصف الثالث','الصف الرابع','الصف الخامس','الصف السادس','الصف السابع','الصف الثامن','الصف التاسع','الصف العاشر','الصف الحادي عشر','الصف الثاني عشر'];
+
+const SUBJECTS_AR = [
+  'اللغة العربية','التربية الإسلامية','الرياضيات','العلوم العامة','الفيزياء','الكيمياء','الأحياء',
+  'التاريخ','الجغرافيا','التربية الوطنية','اللغة الإنجليزية','اللغة العبرية','الحاسوب والتكنولوجيا',
+  'الفنون','التربية البدنية','الموسيقى','التصميم الجرافيكي','الاقتصاد المنزلي','التربية المهنية','أخرى',
+];
+const SUBJECTS_EN = [
+  'Arabic Language','Islamic Studies','Mathematics','General Science','Physics','Chemistry','Biology',
+  'History','Geography','Civics','English Language','Hebrew','Computer Science',
+  'Arts','Physical Education','Music','Graphic Design','Home Economics','Vocational Studies','Other',
+];
+const SUBJECTS_HE = [
+  'שפה ערבית','חינוך אסלאמי','מתמטיקה','מדעים כלליים','פיזיקה','כימיה','ביולוגיה',
+  'היסטוריה','גאוגרפיה','אזרחות','שפה אנגלית','שפה עברית','מחשבים וטכנולוגיה',
+  'אמנות','חינוך גופני','מוזיקה','עיצוב גרפי','כלכלת הבית','חינוך מקצועי','אחר',
+];
+const LANGS  = [{v:'ar',l:'العربية',dir:'rtl'},{v:'en',l:'English',dir:'ltr'},{v:'he',l:'עברית',dir:'rtl'}];
+
+const STYLE_MAP = {
+  grouping:{group:'جماعية',individual:'فردية',mixed:'مزيجة'},
+  approach:{theory:'نظري',practical:'تطبيقي',balanced:'متوازن'},
+  interaction:{questions:'نقاشي',lecture:'إلقائي',discovery:'استكشافي'},
+  assessment:{quiz:'اختبار قصير',observation:'ملاحظة',homework:'واجب منزلي'},
+  tools:{board:'سبورة وكتاب',digital:'رقمي',handson:'أدوات ملموسة'},
+  lesson_type:{new:'درس جديد',review:'مراجعة',application:'تطبيقي',assessment:'تقييمي'},
+  difficulty:{easy:'سهل',medium:'متوسط',hard:'صعب'},
+};
+
+function WelcomeScreen({onStart}){
+  return(
+    <div className="card" style={{textAlign:'center'}}>
+      <div className="w-icon">📚</div>
+      <h1 className="w-title">حضّرلي</h1>
+      <p className="w-sub">مساعدك الفوري لتحضير خطة درس احترافية<br/>في <strong>دقيقتين</strong> — بدون تعقيد</p>
+      {[['1','حدّد أسلوبك التدريسي (٧ أسئلة)'],
+        ['2','أدخل تفاصيل الدرس والوحدة'],
+        ['3','احصل على خطة كاملة + مواد تعليمية بالذكاء الاصطناعي']
+      ].map(([n,t])=>(
+        <div key={n} className="step-item">
+          <div className="step-num">{n}</div>
+          <div className="step-txt">{t}</div>
+        </div>
+      ))}
+      <div style={{marginTop:28}}>
+        <button className="btn-p" onClick={onStart}>ابدأ الآن</button>
+        <p style={{marginTop:12,fontSize:12,color:'var(--text3)'}}>يدعم العربية · English · עברית — لا يُحفظ أي بيانات</p>
+      </div>
+    </div>
+  );
+}
+
+function StyleScreen({onDone}){
+  const [cur,setCur]=useState(0);
+  const [ans,setAns]=useState({});
+  const q=STYLE_QS[cur]; const sel=ans[q.id]; const last=cur===STYLE_QS.length-1;
+  return(
+    <div className="card">
+      <div className="progress-bar">
+        {STYLE_QS.map((_,i)=><div key={i} className={`progress-dot ${i<cur?'done':i===cur?'active':''}`}/>)}
+      </div>
+      <div className="lbl-tag">أسلوبك التدريسي</div>
+      <div className="lbl-title">{q.text}</div>
+      <div className="lbl-sub">اختر الخيار الأقرب إلى طريقتك</div>
+      <div className="opts">
+        {q.opts.map(o=>(
+          <div key={o.v} className={`opt ${sel===o.v?'sel':''}`} onClick={()=>setAns(p=>({...p,[q.id]:o.v}))}>
+            <div className="opt-radio"/><span className="opt-lbl">{o.l}</span>
+          </div>
+        ))}
+      </div>
+      <div className="nav-row">
+        <button className="btn-ghost" style={{visibility:cur===0?'hidden':'visible'}} onClick={()=>setCur(c=>c-1)}>← رجوع</button>
+        <span className="q-cnt">{cur+1} / {STYLE_QS.length}</span>
+        <button className="btn-p" style={{width:'auto',padding:'12px 24px',fontSize:15}} disabled={!sel}
+          onClick={()=>last?onDone(ans):setCur(c=>c+1)}>
+          {last?'متابعة ✓':'التالي →'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function LessonScreen({onSubmit,onBack}){
+  const [lang,setLang]=useState('ar');
+  const [form,setForm]=useState({subject:'',grade:GRADES[4],unit:'',lesson:'',periods:'1'});
+  const d=LANGS.find(l=>l.v===lang).dir;
+  const set=k=>e=>setForm(p=>({...p,[k]:e.target.value}));
+  const subjects=lang==='ar'?SUBJECTS_AR:lang==='en'?SUBJECTS_EN:SUBJECTS_HE;
+  const valid=form.subject&&form.lesson.trim();
+  return(
+    <div className="card">
+      <button className="btn-ghost" style={{marginBottom:16,display:'inline-flex',alignItems:'center',gap:4}} onClick={onBack}>← العودة</button>
+      <div className="lbl-tag">تفاصيل الدرس</div>
+      <div className="lbl-title">أخبرني عن درسك</div>
+      <div className="lbl-sub">أدخل المعلومات وسأبني الخطة الكاملة فوراً</div>
+
+      <div style={{marginBottom:16}}>
+        <div className="fl" style={{marginBottom:8}}>لغة المحتوى الدراسي</div>
+        <div className="lang-tabs">
+          {LANGS.map(l=>(
+            <button key={l.v} className={`lang-tab ${lang===l.v?'active':''}`}
+              onClick={()=>{setLang(l.v);setForm(p=>({...p,subject:''}));}}
+              style={l.v==='he'?{fontFamily:'serif'}:{}}>{l.l}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="fg-row col2">
+        <div className="fg">
+          <label className="fl">{lang==='ar'?'المادة الدراسية':lang==='en'?'Subject':'מקצוע'}</label>
+          <select className="fs" dir={d} value={form.subject} onChange={set('subject')}>
+            <option value="">{lang==='ar'?'— اختر المادة —':lang==='en'?'— Select Subject —':'— בחר מקצוע —'}</option>
+            {subjects.map(s=><option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+        <div className="fg">
+          <label className="fl">{lang==='ar'?'الصف الدراسي':lang==='en'?'Grade':'כיתה'}</label>
+          <select className="fs" value={form.grade} onChange={set('grade')}>
+            {GRADES.map(g=><option key={g}>{g}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div className="fg">
+        <label className="fl">{lang==='ar'?'الوحدة الدراسية (اختياري)':lang==='en'?'Unit (optional)':'יחידה (אופציונלי)'}</label>
+        <input className="fi" dir={d}
+          placeholder={lang==='ar'?'مثال: الفصل الثاني — التصميم الجرافيكي':lang==='en'?'e.g. Unit 2 — Graphic Design':'יחידה 2 — עיצוב גרפי'}
+          value={form.unit} onChange={set('unit')}/>
+      </div>
+
+      <div className="fg">
+        <label className="fl">{lang==='ar'?'عنوان الدرس':lang==='en'?'Lesson Title':'נושא השיעור'}</label>
+        <input className="fi" dir={d}
+          placeholder={lang==='ar'?'مثال: الكسور العشرية':lang==='en'?'e.g. Decimal Fractions':'לדוגמה: שברים עשרוניים'}
+          value={form.lesson} onChange={set('lesson')}/>
+      </div>
+
+      <div className="fg">
+        <label className="fl">{lang==='ar'?'عدد الحصص':lang==='en'?'Number of Periods':'מספר שיעורים'}</label>
+        <select className="fs" value={form.periods} onChange={set('periods')}>
+          <option value="1">{lang==='ar'?'حصة واحدة (٤٥ دقيقة)':lang==='en'?'1 Period (45 min)':'שיעור אחד (45 דק׳)'}</option>
+          <option value="2">{lang==='ar'?'حصتان (٩٠ دقيقة)':lang==='en'?'2 Periods (90 min)':'שני שיעורים (90 דק׳)'}</option>
+          <option value="3">{lang==='ar'?'ثلاث حصص (١٣٥ دقيقة)':lang==='en'?'3 Periods (135 min)':'שלושה שיעורים (135 דק׳)'}</option>
+        </select>
+      </div>
+
+      <div style={{marginTop:8}}>
+        <button className="btn-p" disabled={!valid} onClick={()=>onSubmit({...form,lang})}>
+          {lang==='ar'?'تحضير الخطة ✨':lang==='en'?'Generate Plan ✨':'הכן תכנית ✨'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Loader({text='جارٍ التحضير…'}){
+  return(
+    <div className="loading-wrap">
+      <div className="dots"><span/><span/><span/></div>
+      <p style={{fontSize:15,color:'var(--text2)',fontWeight:500}}>{text}</p>
+    </div>
+  );
+}
+
+function PlanScreen({lesson,style,onNew}){
+  const [plan,setPlan]=useState(null);
+  const [loading,setLoading]=useState(true);
+  const [infographic,setInfographic]=useState(null);
+  const [infographicLoading,setInfographicLoading]=useState(true);
+  const [copied,setCopied]=useState(false);
+
+  const styleDesc=Object.entries(style).map(([k,v])=>STYLE_MAP[k]?.[v]||v).join('، ');
+  const periodLabel={'1':'حصة واحدة (٤٥ دقيقة)','2':'حصتان (٩٠ دقيقة)','3':'ثلاث حصص (١٣٥ دقيقة)'}[lesson.periods];
+  const langName=LANGS.find(l=>l.v===lesson.lang).l;
+  const totalMin=parseInt(lesson.periods)*45;
+  const langDir=LANGS.find(l=>l.v===lesson.lang).dir;
+
+  useEffect(()=>{
+    const lessonType = style.lesson_type || 'new';
+    const difficulty = style.difficulty || 'medium';
+    const grouping   = style.grouping   || 'mixed';
+    const approach   = style.approach   || 'balanced';
+    const interaction= style.interaction|| 'questions';
+    const tools      = style.tools      || 'board';
+
+    const timeMap = {
+      new:        {warmup:0.12, teach:0.45, apply:0.30, assess:0.13},
+      review:     {warmup:0.08, teach:0.25, apply:0.50, assess:0.17},
+      application:{warmup:0.05, teach:0.15, apply:0.65, assess:0.15},
+      assessment: {warmup:0.05, teach:0.05, apply:0.75, assess:0.15},
+    };
+    const tw = timeMap[lessonType];
+    const t0 = Math.round(totalMin * tw.warmup);
+    const t1 = Math.round(totalMin * (tw.warmup + tw.teach));
+    const t2 = Math.round(totalMin * (tw.warmup + tw.teach + tw.apply));
+
+    const lessonTypeLabel = {new:'درس جديد',review:'مراجعة وتكرار',application:'درس تطبيقي',assessment:'درس تقييمي'}[lessonType];
+    const diffLabel = {easy:'سهل (مفاهيم مألوفة)',medium:'متوسط (يحتاج شرحاً)',hard:'صعب (مفاهيم معقدة)'}[difficulty];
+
+    const prompt = `أنت خبير تربوي ومعلم متخصص في مادة "${lesson.subject}". أعدّ خطة درس دقيقة ومخصصة.
+
+━━━ بيانات الدرس ━━━
+• المادة: ${lesson.subject}
+• الصف: ${lesson.grade}
+• الوحدة: ${lesson.unit || 'غير محددة'}
+• عنوان الدرس: ${lesson.lesson}
+• نوع الدرس: ${lessonTypeLabel}
+• مستوى الصعوبة: ${diffLabel}
+• المدة: ${totalMin} دقيقة (${lesson.periods} حصة)
+• لغة التدريس: ${langName}
+• أسلوب المجموعات: ${STYLE_MAP.grouping[grouping]}
+• المنهج: ${STYLE_MAP.approach[approach]}
+• التفاعل: ${STYLE_MAP.interaction[interaction]}
+• الأدوات: ${STYLE_MAP.tools[tools]}
+
+التوزيع الزمني المطلوب:
+• التهيئة: الدقائق 0–${t0} (${t0} دقيقة)
+• العرض والشرح: الدقائق ${t0}–${t1} (${t1-t0} دقيقة)
+• التطبيق: الدقائق ${t1}–${t2} (${t2-t1} دقيقة)
+• التقويم: الدقائق ${t2}–${totalMin} (${totalMin-t2} دقيقة)
+
+تعليمات مهمة:
+1. كل محتوى الخطة يجب أن يكون خاصاً بمادة "${lesson.subject}" ودرس "${lesson.lesson}" تحديداً
+2. الأنشطة تختلف حسب نوع الدرس: "${lessonTypeLabel}" — فلا تستخدم نمطاً واحداً لكل الدروس
+3. أدوات التقييم تتناسب مع نوع الدرس (${lessonTypeLabel}) وصعوبته (${diffLabel})
+4. معيار النجاح يعكس مستوى الصعوبة: للدروس الصعبة نسبة أقل، للسهلة أعلى
+5. الواجب المنزلي يختلف: للمراجعة تمارين، للجديد بحث، للتطبيقي مسائل إضافية
+6. ملاحظات المعلم يجب أن تكون نصيحة مهنية حقيقية خاصة بهذا الدرس وهذه المادة
+7. اكتب الخطة بلغة التدريس: ${langName}
+8. لا تستخدم "undefined" أو قيم فارغة — كل حقل يجب أن يحتوي محتوى حقيقياً
+
+أنتج JSON فقط بدون أي نص خارجه:
+{
+  "general_goals": ["هدف 1 قابل للقياس","هدف 2","هدف 3","هدف 4"],
+  "acquired_skills": ["مهارة محددة 1","مهارة 2","مهارة 3","مهارة 4"],
+  "key_concepts": ["مفهوم أساسي 1: تعريف دقيق","مفهوم 2: تعريف","مفهوم 3: تعريف"],
+  "activities": [
+    {"phase":"التهيئة","time":"الدقائق 0–${t0}","desc":"نشاط تهيئة مناسب لـ${lessonTypeLabel} في ${lesson.subject}","materials":"أدوات محددة"},
+    {"phase":"العرض والشرح","time":"الدقائق ${t0}–${t1}","desc":"محتوى العرض الفعلي لدرس ${lesson.lesson}","materials":"أدوات العرض"},
+    {"phase":"التطبيق","time":"الدقائق ${t1}–${t2}","desc":"تمارين وأنشطة تطبيقية خاصة بـ${lesson.lesson}","materials":"المواد المطلوبة"},
+    {"phase":"التقويم","time":"الدقائق ${t2}–${totalMin}","desc":"أسلوب تقييم مناسب لـ${lessonTypeLabel} ومستوى ${diffLabel}","materials":"أداة التقييم"}
+  ],
+  "teaching_strategies": ["استراتيجية مناسبة لـ${lessonTypeLabel} في ${lesson.subject}","استراتيجية 2","استراتيجية 3"],
+  "differentiation": {
+    "advanced":"تحدٍّ إثرائي محدد يتجاوز أهداف ${lesson.lesson}",
+    "struggling":"دعم مبسّط لمفاهيم ${lesson.lesson} الصعبة"
+  },
+  "assessment_tools": ["أداة تقييم مناسبة لـ${lessonTypeLabel}","أداة 2","أداة 3"],
+  "homework": "واجب مناسب لـ${lessonTypeLabel} في ${lesson.subject} — درس ${lesson.lesson}",
+  "success_criteria": "معيار قابل للقياس يعكس صعوبة ${diffLabel} لدرس ${lesson.lesson}",
+  "success_pct": ${difficulty==='easy'?90:difficulty==='medium'?82:75},
+  "teacher_notes": "نصيحة مهنية فريدة خاصة بتدريس ${lesson.lesson} في ${lesson.subject} للصف ${lesson.grade}"
+}`;
+
+    window.claude.complete({messages:[{role:'user',content:prompt}]})
+      .then(txt=>{
+        try{ const c=txt.replace(/```json|```/g,'').trim(); setPlan(JSON.parse(c)); }
+        catch{ setPlan(fallbackPlan(lessonType,difficulty,t0,t1,t2)); }
+      })
+      .catch(()=>setPlan(fallbackPlan(lessonType,difficulty,t0,t1,t2)))
+      .finally(()=>setLoading(false));
+  },[]);
+
+  function fallbackPlan(lt='new',diff='medium',t0=7,t1=22,t2=37){
+    const pct={easy:90,medium:82,hard:75}[diff]||82;
+    const hw={
+      new:`البحث عن أمثلة إضافية على ${lesson.lesson} وكتابة ملاحظات`,
+      review:`حل تمارين المراجعة المتعلقة بـ${lesson.lesson} من الكتاب`,
+      application:`حل ٥ مسائل إضافية على ${lesson.lesson}`,
+      assessment:`مراجعة الأخطاء في الاختبار وتصحيحها`,
+    }[lt]||`واجب متعلق بـ${lesson.lesson}`;
+    return{
+      general_goals:[
+        `أن يتعرّف الطالب على مفهوم ${lesson.lesson}`,
+        `أن يُطبّق المهارات المرتبطة بـ${lesson.lesson}`,
+        `أن يُحلّل ويُقيّم نتائج تعلّمه`,
+        `أن يربط ${lesson.lesson} بتطبيقات واقعية في ${lesson.subject}`,
+      ],
+      acquired_skills:[
+        `فهم وشرح ${lesson.lesson}`,
+        `تطبيق مفاهيم ${lesson.subject} العملية`,
+        `مهارات التفكير النقدي والتحليل`,
+        `حل المشكلات المرتبطة بالدرس`,
+      ],
+      key_concepts:[
+        `المفهوم الرئيسي لـ${lesson.lesson}`,
+        `التطبيق العملي في ${lesson.subject}`,
+        `الربط بالمنهج الدراسي للصف ${lesson.grade}`,
+      ],
+      activities:[
+        {phase:'التهيئة',time:`الدقائق 0–${t0}`,desc:`استثارة اهتمام الطلاب بسؤال أو موقف مرتبط بـ${lesson.lesson}`,materials:'السبورة'},
+        {phase:'العرض والشرح',time:`الدقائق ${t0}–${t1}`,desc:`شرح محتوى ${lesson.lesson} بأسلوب واضح مع أمثلة`,materials:'الكتاب المدرسي، البروجكتور'},
+        {phase:'التطبيق',time:`الدقائق ${t1}–${t2}`,desc:`تطبيق عملي على ${lesson.lesson} فردياً أو جماعياً`,materials:'أوراق العمل'},
+        {phase:'التقويم',time:`الدقائق ${t2}–${totalMin}`,desc:`تقييم مستوى التحقق من أهداف ${lesson.lesson}`,materials:'بطاقة التقييم'},
+      ],
+      teaching_strategies:['التعلم النشط','التعلم التعاوني','التغذية الراجعة الفورية'],
+      differentiation:{
+        advanced:`تكليف بمهمة إثرائية تتجاوز أهداف ${lesson.lesson}`,
+        struggling:`تقديم دعم فردي وتبسيط مفاهيم ${lesson.lesson}`,
+      },
+      assessment_tools:['ملاحظة المشاركة','مهمة صفية','اختبار قصير'],
+      homework:hw,
+      success_criteria:`إتقان ${lesson.lesson} بنسبة ${pct}% وأعلى`,
+      success_pct:pct,
+      teacher_notes:`ركّز على الجوانب العملية لدرس ${lesson.lesson} ومراعاة الفروقات الفردية بين طلاب ${lesson.grade}`,
+    };
+  }
+
+  useEffect(()=>{
+    const prompt=`أنت مصمم إنفوجرافيك تعليمي. أنتج JSON فقط لإنفوجرافيك تعليمي عن:
+المادة: ${lesson.subject} | الدرس: ${lesson.lesson} | الصف: ${lesson.grade}
+
+{"title":"عنوان قصير جذاب","subtitle":"جملة توضيحية","sections":[{"icon":"رمز","color":"#2D9E8A","title":"عنوان القسم","points":["نقطة 1","نقطة 2","نقطة 3"]}],"footer":"خلاصة الدرس في جملة"}
+4 أقسام متنوعة تشمل: المفاهيم الرئيسية، خطوات التطبيق، أمثلة، نتائج التعلم.`;
+    window.claude.complete({messages:[{role:'user',content:prompt}]})
+      .then(txt=>{try{setInfographic(JSON.parse(txt.replace(/```json|```/g,'').trim()));}catch{setInfographic(null);}})
+      .catch(()=>setInfographic(null))
+      .finally(()=>setInfographicLoading(false));
+  },[]);
+
+
+
+  function copyPlan(){
+    if(!plan) return;
+    const lt=({new:'درس جديد',review:'مراجعة',application:'تطبيقي',assessment:'تقييمي'})[style.lesson_type||'new']||'';
+    const t=`خطة درس: ${lesson.lesson}\nالمادة: ${lesson.subject} | الصف: ${lesson.grade}\nالوحدة: ${lesson.unit||'—'} | المدة: ${periodLabel} | النوع: ${lt}\n\nالأهداف العامة:\n${(plan.general_goals||[]).map((g,i)=>`${i+1}. ${g}`).join('\n')}\n\nالمهارات المكتسبة:\n${(plan.acquired_skills||[]).map(s=>`• ${s}`).join('\n')}\n\nالمفاهيم الأساسية:\n${(plan.key_concepts||[]).map(k=>`• ${k}`).join('\n')}\n\nالأنشطة:\n${(plan.activities||[]).map(a=>`[${a.phase}] ${a.time}: ${a.desc}`).join('\n')}\n\nأدوات التقييم:\n${(plan.assessment_tools||[]).map(t=>`• ${t}`).join('\n')}\nالواجب: ${plan.homework||'—'}\nمعايير النجاح: ${plan.success_criteria||'—'} (${plan.success_pct||'—'}%)\nملاحظات: ${plan.teacher_notes||'—'}`;
+    navigator.clipboard.writeText(t).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2500);});
+  }
+
+  const PHASE_COLORS={'التهيئة':'var(--amber)','العرض والشرح':'var(--teal)','التطبيق':'var(--blue)','التقويم':'var(--violet)'};
+
+  if(loading) return <div className="card"><Loader text="جارٍ تحضير خطة الدرس المفصّلة…"/></div>;
+
+  return(<>
+    <div className="card">
+      <div style={{marginBottom:16}}>
+        <div className="lbl-tag">خطة الدرس جاهزة ✓</div>
+        <div className="lbl-title" dir={langDir}>{lesson.lesson}</div>
+        <div className="plan-meta-bar">
+          <span className="meta-chip">📚 {lesson.subject}</span>
+          <span className="meta-chip">🎓 {lesson.grade}</span>
+          {lesson.unit&&<span className="meta-chip">📖 {lesson.unit}</span>}
+          <span className="meta-chip">⏱️ {periodLabel}</span>
+          <span className="meta-chip">🌐 {langName}</span>
+        </div>
+      </div>
+      <div className="action-row">
+        <button className="btn-s" onClick={copyPlan}>{copied?'✓ تم النسخ':'📋 نسخ الخطة'}</button>
+        <button className="btn-s" onClick={()=>window.print()}>🖨️ طباعة</button>
+      </div>
+
+      <table className="plan-table">
+        <tbody>
+          <tr>
+            <th>الفصل / الوحدة</th>
+            <td dir={langDir}>{lesson.unit||lesson.lesson}<br/><span style={{fontSize:12,color:'var(--text3)'}}>{lesson.subject} — {lesson.grade}</span></td>
+          </tr>
+          <tr>
+            <th>نوع الدرس</th>
+            <td>
+              <span style={{display:'inline-flex',alignItems:'center',gap:6,background:'var(--teal-l)',color:'var(--teal)',borderRadius:99,padding:'4px 14px',fontSize:13,fontWeight:700,marginLeft:8}}>
+                {{new:'📘 درس جديد',review:'🔄 مراجعة',application:'⚙️ تطبيقي',assessment:'📝 تقييمي'}[style.lesson_type||'new']}
+              </span>
+              <span style={{display:'inline-flex',alignItems:'center',gap:6,background:'var(--amber-l)',color:'var(--amber)',borderRadius:99,padding:'4px 14px',fontSize:13,fontWeight:700}}>
+                {{easy:'🟢 سهل',medium:'🟡 متوسط',hard:'🔴 صعب'}[style.difficulty||'medium']}
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <th>الأهداف العامة</th>
+            <td><ul>{plan.general_goals?.map((g,i)=><li key={i}>{g}</li>)}</ul></td>
+          </tr>
+          <tr>
+            <th>المفاهيم الأساسية</th>
+            <td>
+              {plan.key_concepts?.map((k,i)=>(
+                <div key={i} style={{display:'flex',gap:8,marginBottom:6,alignItems:'flex-start'}}>
+                  <div style={{width:6,height:6,borderRadius:'50%',background:'var(--teal)',flexShrink:0,marginTop:6}}/>
+                  <span style={{fontSize:14,lineHeight:1.5}}>{k}</span>
+                </div>
+              ))}
+            </td>
+          </tr>
+          <tr>
+            <th>المهارات المكتسبة</th>
+            <td><ul>{(plan.acquired_skills||[]).map((s,i)=><li key={i}>{s}</li>)}</ul></td>
+          </tr>
+          <tr>
+            <th>الأنشطة والاستراتيجيات</th>
+            <td>
+              <div style={{marginBottom:10,fontSize:13,color:'var(--text2)'}}>
+                {plan.teaching_strategies?.join(' · ')}
+              </div>
+              {plan.activities.map((a,i)=>(
+                <div key={i} style={{display:'flex',gap:10,marginBottom:12,alignItems:'flex-start'}}>
+                  <div style={{background:PHASE_COLORS[a.phase]||'var(--teal)',color:'#fff',borderRadius:8,padding:'4px 10px',fontSize:11,fontWeight:700,whiteSpace:'nowrap',flexShrink:0,lineHeight:1.4,textAlign:'center'}}>
+                    {a.phase}<br/><span style={{fontWeight:400,opacity:.85}}>{a.time}</span>
+                  </div>
+                  <div>
+                    <div style={{fontSize:14,color:'var(--text)',lineHeight:1.5,marginBottom:3}}>{a.desc}</div>
+                    {a.materials&&<div style={{fontSize:12,color:'var(--text3)'}}>📎 {a.materials}</div>}
+                  </div>
+                </div>
+              ))}
+            </td>
+          </tr>
+          <tr>
+            <th>التمايز والدعم</th>
+            <td>
+              {plan.differentiation&&<>
+                <div style={{marginBottom:8}}>
+                  <div style={{fontSize:12,fontWeight:700,color:'var(--teal)',marginBottom:3}}>للمتقدمين</div>
+                  <div style={{fontSize:14,color:'var(--text)'}}>{plan.differentiation.advanced}</div>
+                </div>
+                <div>
+                  <div style={{fontSize:12,fontWeight:700,color:'var(--amber)',marginBottom:3}}>لمن يحتاج دعماً</div>
+                  <div style={{fontSize:14,color:'var(--text)'}}>{plan.differentiation.struggling}</div>
+                </div>
+              </>}
+            </td>
+          </tr>
+          <tr>
+            <th>أدوات التقييم</th>
+            <td><ul>{(plan.assessment_tools||[]).map((t,i)=><li key={i}>{t}</li>)}</ul></td>
+          </tr>
+          <tr>
+            <th>الواجب المنزلي</th>
+            <td style={{fontStyle:'italic'}}>{plan.homework}</td>
+          </tr>
+          <tr>
+            <th>معايير النجاح</th>
+            <td>
+              {plan.success_criteria}
+              <div className="criteria-pct"><span>✓</span><span>{plan.success_pct}%</span></div>
+            </td>
+          </tr>
+          {plan.teacher_notes&&<tr>
+            <th>ملاحظات للمعلم</th>
+            <td style={{background:'var(--amber-l)'}}>{plan.teacher_notes}</td>
+          </tr>}
+        </tbody>
+      </table>
+
+      <div className="div"/>
+
+      <div className="ai-section-title">📊 إنفوجرافيك الدرس</div>
+      <div className="ai-section-sub">ملخص بصري تلقائي للمحتوى</div>
+
+      {infographicLoading
+        ? <div style={{background:'var(--bg)',borderRadius:16,padding:24,marginBottom:20,textAlign:'center'}}><Loader text="جارٍ توليد الإنفوجرافيك…"/></div>
+        : infographic
+          ? <div style={{background:'linear-gradient(135deg,var(--teal-l),var(--blue-l))',borderRadius:20,padding:20,marginBottom:24,border:'1.5px solid var(--teal-m)'}}>
+              <div style={{textAlign:'center',marginBottom:18}}>
+                <div style={{fontSize:20,fontWeight:900,color:'var(--teal)',marginBottom:3}}>{infographic.title}</div>
+                <div style={{fontSize:13,color:'var(--text2)'}}>{infographic.subtitle}</div>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                {infographic.sections?.map((s,i)=>{
+                  const cols=['#2D9E8A','#4A7FA5','#E8A53A','#7B6FA5'];
+                  const col=s.color||cols[i%4];
+                  return(
+                    <div key={i} style={{background:'#fff',borderRadius:14,padding:'14px 16px',borderTop:`3px solid ${col}`}}>
+                      <div style={{fontSize:22,marginBottom:5}}>{s.icon}</div>
+                      <div style={{fontSize:13,fontWeight:800,color:'var(--text)',marginBottom:8}}>{s.title}</div>
+                      {s.points?.map((p,j)=>(
+                        <div key={j} style={{display:'flex',gap:6,alignItems:'flex-start',marginBottom:4}}>
+                          <div style={{width:5,height:5,borderRadius:'50%',background:col,flexShrink:0,marginTop:7}}/>
+                          <span style={{fontSize:12,color:'var(--text2)',lineHeight:1.5}}>{p}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+              {infographic.footer&&<div style={{textAlign:'center',marginTop:14,padding:'9px 16px',background:'rgba(255,255,255,.7)',borderRadius:10,fontSize:13,fontWeight:700,color:'var(--teal)'}}>{infographic.footer}</div>}
+            </div>
+          : null
+      }
+
+      <button className="btn-p" onClick={onNew}>تحضير خطة جديدة ←</button>
+    </div>
+  </>);
+}
+
+function App(){
+  const [screen,setScreen]=useState('welcome');
+  const [styleAns,setStyleAns]=useState(null);
+  const [lessonData,setLessonData]=useState(null);
+  return(<>
+    {screen==='welcome'&&<WelcomeScreen onStart={()=>setScreen('style')}/>}
+    {screen==='style'&&<StyleScreen onDone={a=>{setStyleAns(a);setScreen('lesson');}}/>}
+    {screen==='lesson'&&<LessonScreen onSubmit={d=>{setLessonData(d);setScreen('plan');}} onBack={()=>setScreen('style')}/>}
+    {screen==='plan'&&<PlanScreen lesson={lessonData} style={styleAns} onNew={()=>setScreen('lesson')}/>}
+  </>);
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
