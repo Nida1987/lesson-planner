@@ -1,4 +1,10 @@
-node_modules/ 
-.env 
-*.log 
-.DS_Store 
+cd /d "D:\Nida Files"
+git rm "api key.txt"
+git commit -m "Remove API key file for security"
+node_modules/
+.env
+*.log
+.DS_Store
+api key.txt
+*.exe
+*.msi
